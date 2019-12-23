@@ -1,0 +1,85 @@
+SampleApplicationModule.controller('shippingController', function ($rootScope,$mdDialog,$filter,$scope, $location,$window,$http,$interval,$routeParams, $timeout, store) {
+    // redirect to page
+    $scope.goto = function (page) {
+        $location.path(page);
+    };
+    // Logout
+    $scope.logout = function () {
+        $window.localStorage.clear();
+        $window.location = '/clientportal';
+        console.log("here");
+      };
+      // get User
+      $scope.getUser=function(){
+        var id=window.localStorage.getItem('trid');
+        $http.get(baseURL+'clientById/'+id).then(successCallback, errorCallback);
+        function successCallback(res){
+          $scope.client=res.data;
+        }function errorCallback(error){
+          console.log(error);
+        };
+      };
+    // // Shipping
+    // $scope.getShipping = function () {
+    //     var id=window.localStorage.getItem('trid');
+    //     $http.get(baseURL + 'ShippingTracking/'+id).then(successCallback, errorCallback);
+    //     function successCallback(res){
+    //     $scope.Shippinglist = res.data;
+    //     }function errorCallback(error){
+    //     console.log(error);
+    //     };
+    // };
+    // // show packing button theme
+    // $scope.theme = 'red';
+    // var isThemeRed = true;
+    // $interval(function () {
+    //     $scope.theme = isThemeRed ? 'blue' : 'red';
+    //     isThemeRed = !isThemeRed;
+    // }, 2000);
+    // // show packing list
+    // $scope.packinglist=function(id,inv_no){
+    //     window.localStorage.setItem('Invcid',id);
+    //     window.localStorage.setItem('InvNo',inv_no);
+    //     $location.path("/Packing-List");
+    // }
+    // $scope.viewPacking = function(){
+    //     var inv_no= window.localStorage.getItem('InvNo');
+    //     var client_id=window.localStorage.getItem('Invcid');
+    //     $http.get(baseURL + 'viewInvDetails/' + inv_no + '/' + client_id).then(successCallback, errorCallback);
+    //     function successCallback(res){
+    //         $scope.viewInv=res.data;
+    //         $timeout(function () {
+    //         window.localStorage.removeItem('InvNo');
+    //         window.localStorage.removeItem('Invcid');
+    //         }, 3000);
+    //     }function errorCallback(error){
+    //         console.log(error);
+    //     };  
+    // };
+    // update client address
+    $scope.updateClientAddr = function (addr,cid) {
+        var body = {
+            addr: addr,
+            cid: cid,
+        }
+        $http.post(baseURL + 'updateCliAddr/', body).then(successCallback, errorCallback);
+        function successCallback(res){
+            if (res.data) {
+                $timeout(function () {
+                location.reload();
+                }, 3000);
+            } else {
+            console.log('Error! Please check client id');
+            }
+        }function errorCallback(error){
+            console.log(error);
+        };
+    };
+    // view invoice
+    $scope.redirecttoInvoice=function(inv_no,client_id){
+        $location.path('/Invoice');
+        window.localStorage.setItem('InvNo',inv_no);
+        window.localStorage.setItem('Invcid',client_id);
+      };
+
+});

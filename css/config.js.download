@@ -1,0 +1,10 @@
+if (document.location.hostname == "www.gadgetsinasia.com" || document.location.hostname == "www.gadgetsinasia.com") {
+   var baseURL = "https://api.fountaintechies.com/api/";
+   var imageURL = "https://api.fountaintechies.com/assets/web/40";
+   var refr = "https://www.gadgetsinasia.com/reseller/#!/";
+
+} else {
+   var baseURL = "http://localhost:2000/api/";
+   var imageURL = "http://localhost:2000/assets/web/40";
+   var refr = "http://localhost:6100/reseller/#!/";
+}

@@ -1,0 +1,130 @@
+
+var ApplicationModuleName = 'BusinessApp';
+
+var SampleApplicationModule = angular.module('BusinessApp', [
+    'ngRoute',
+    'ngMaterial',
+    'ngAnimate',
+    'ngMessages',
+    'angular-storage',
+    'xeditable',
+]);
+// angular-xeditable
+SampleApplicationModule.run(function (editableOptions) {
+    editableOptions.theme = 'bs4', 'default';// bootstrap4 theme. Can be also 'bs4', 'bs2', 'default'
+});
+SampleApplicationModule.config(['$routeProvider', 'storeProvider', '$mdThemingProvider', function ($routeProvider, storeProvider, $mdThemingProvider) {
+
+    $routeProvider.otherwise({ redirectTo: '/clientportal' });
+    // button theme
+    $mdThemingProvider.theme('red')
+        .primaryPalette('red');
+    $mdThemingProvider.theme('blue')
+        .primaryPalette('blue');
+    $routeProvider
+        .when('/', {
+            templateUrl: 'partials/clientlogin.html',
+            controller: 'clientportalController'
+        })
+        .when('/Profile', {
+            templateUrl: 'partials/profile.html',
+            controller: 'clientportalController'
+        })
+
+        .when('/dropshippingorders', {
+            templateUrl: 'partials/dropshippingorders.html',
+            controller: 'operationController'
+        })
+        .when('/orderdetails', {
+            templateUrl: 'partials/orderdetails.html',
+            controller: 'operationController'
+        })
+        .when('/allTeams', {
+            templateUrl: 'partials/allteams.html',
+            controller: 'operationController'
+        })
+        .when('/packinginvoice', {
+            templateUrl: 'partials/packinginvoice.html',
+            controller: 'operationController'
+        })
+        .when('/shipinvoice', {
+            templateUrl: 'partials/shipinvoice.html',
+            controller: 'operationController'
+        })
+        .when('/referrer/:reff', {
+            templateUrl: 'partials/referrer.html',
+            controller: 'clientportalController'
+        })
+
+        .when('/costinvoice', {
+            templateUrl: 'partials/costinvoice.html',
+            controller: 'operationController'
+        })
+        .when('/costinvoiceupdated', {
+            templateUrl: 'partials/costinvoiceupdated.html',
+            controller: 'operationController'
+        })
+        .when('/packShipping', {
+            templateUrl: 'partials/packshipping.html',
+            controller: 'operationController'
+        })
+        .when('/notes', {
+            templateUrl: 'partials/notes.html',
+            controller: 'operationController'
+        })
+        .when('/directbuyproducts', {
+            templateUrl: 'partials/dropshipping.html',
+            controller: 'operationController'
+        })
+        .when('/directbuysummary', {
+            templateUrl: 'partials/directbuysummary.html',
+            controller: 'operationController'
+        })
+        .when('/packinglist', {
+            templateUrl: 'partials/packinglist.html',
+            controller: 'operationController'
+        })
+
+        .when('/packingdetails', {
+            templateUrl: 'partials/packingdetails.html',
+            controller: 'operationController'
+        })
+
+        .when('/previewpacking', {
+            templateUrl: 'partials/previewpacking.html',
+            controller: 'operationController'
+        })
+        .when('/productsinvoice', {
+            templateUrl: 'partials/productsinvoice.html',
+            controller: 'operationController'
+        })
+        .when('/allproducts', {
+            templateUrl: 'partials/allproducts.html',
+            controller: 'operationController'
+        })
+        .when('/shipdetails', {
+            templateUrl: 'partials/shipdetails.html',
+            controller: 'operationController'
+        })
+        .when('/packingAddress', {
+            templateUrl: 'partials/packshipping.html',
+            controller: 'operationController'
+        })
+        .when('/packingorderplaced', {
+            templateUrl: 'partials/packingsuccmsz.html',
+            controller: 'operationController'
+        })
+        .when('/payment', {
+            templateUrl: 'partials/payment.html',
+            controller: 'operationController'
+        })
+        .when('/deposit', {
+            templateUrl: 'partials/deposit.html',
+            controller: 'operationController'
+        })
+        .when('/paymenthistory', {
+            templateUrl: 'partials/paymenthistory.html',
+            controller: 'operationController'
+        });
+
+}]);

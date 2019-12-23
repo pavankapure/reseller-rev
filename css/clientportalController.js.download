@@ -1,0 +1,346 @@
+SampleApplicationModule.controller('clientportalController', function ($rootScope, $mdDialog, $scope, $location, $window, $http, $routeParams, $timeout, store) {
+  // redirect to page
+  $scope.goto = function (page) {
+    $location.path(page);
+  };
+  // client registration
+  $scope.clientRegistrationThroughReferrer = function (RegisForm, client) {
+    var url = location.href;
+    var referrer1 = url.split('/')[6].replace('%20', " ");
+    var d = new Date();
+    var curr_date = d.getDate();
+    var curr_month = d.getMonth() + 1;
+    var curr_year = d.getFullYear();
+    var r_date = curr_date + "-" + curr_month + "-" + curr_year;
+    client.referrer = referrer1;
+    client.r_date = r_date;
+    $http.post(baseURL + "clientRegistrationThroughReferrer", client).then(successCallback, errorCallback);
+    function successCallback(response) {
+      if (response.data.status === true) {
+        $scope.alertSuccess = response.data.message;
+        $scope.success = true;
+        $("#alertSuccess").show("slow");
+        $timeout(function () {
+          location.reload();
+        }, 3000);
+      } else {
+        $scope.alertmsg = response.data.message;
+        $("#alertmsg").show("slow");
+        $scope.notFound1 = true;
+        $timeout(function () {
+          $scope.alertmsg = response.data.message;
+          $("#alertmsg").show("slow");
+          $scope.notFound1 = false;
+        }, 8000);
+      }
+    }
+    function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  $scope.clientRegistration = function (RegisForm, client) {
+    var d = new Date();
+    var curr_date = d.getDate();
+    var curr_month = d.getMonth() + 1;
+    var curr_year = d.getFullYear();
+    var r_date = curr_date + "-" + curr_month + "-" + curr_year;
+    var referrer = $scope.client.referrer ? $scope.client.referrer : 'Not Mentioned';
+    $scope.client.r_date = r_date;
+    $scope.client.referrer = referrer;
+    $http.post(baseURL + "clientportalRegistration", $scope.client).then(successCallback, errorCallback);
+    function successCallback(response) {
+      if (response.data.status === true) {
+        $scope.alertSuccess = response.data.message;
+        $scope.success = true;
+        $("#alertSuccess").show("slow");
+        $timeout(function () {
+          location.reload();
+        }, 3000);
+      } else {
+        $scope.alertmsg = response.data.message;
+        $("#alertmsg").show("slow");
+        $scope.notFound1 = true;
+        $timeout(function () {
+          $scope.alertmsg = response.data.message;
+          $("#alertmsg").show("slow");
+          $scope.notFound1 = false;
+        }, 8000);
+      }
+    }
+    function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  // client login
+  $scope.clientlogin = function () {
+    $http.post(baseURL + "clientportalLogin", $scope.user).then(successCallback, errorCallback);
+    function successCallback(response) {
+      if (response.data.usernameexist === false) {
+        $scope.alertmessage = response.data.message;
+        $scope.notFound = true;
+        $("#alertmessage").show("slow");
+      } else {
+        if (response.data.passValid === true) {
+          $scope.alertSuccess = response.data.message;
+          $("#alertSuccess").show("slow");
+          $scope.alertS = true;
+          window.localStorage.setItem('trid', response.data.value.id);
+          $timeout(function () {
+            $location.path("/allproducts");
+          }, 1000);
+        } else {
+          $scope.alertmessage = response.data.message;
+          $("#alertmessage").show("slow");
+          $scope.notFound = true;
+          $timeout(function () {
+            $scope.alertmessage = response.data.message;
+            $("#alertmessage").show("slow");
+            $scope.notFound = false;
+          }, 8000);
+        }
+      }
+    }
+    function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  // Logout
+  $scope.logout = function () {
+    $window.localStorage.clear();
+    $window.location = '/reseller';
+  };
+  // get User
+  $scope.getUser = function () {
+    var id = window.localStorage.getItem('trid');
+    $http.get(baseURL + 'clientById/' + id).then(successCallback, errorCallback);
+    function successCallback(res) {
+      $scope.client = res.data;
+    } function errorCallback(error) {
+      console.log(error);
+    };
+  };
+  // All Client WTB data
+  $scope.wtblist = function () {
+    var id = window.localStorage.getItem('trid');
+    $http.get(baseURL + 'wtbById/' + id).then(successCallback, errorCallback);
+    function successCallback(res) {
+      $scope.wtb = res.data;
+    } function errorCallback(error) {
+      console.log(error);
+    };
+  };
+  // delete confirmation
+  $scope.delete = function (qid) {
+    console.log("Hello");
+    swal({
+      title: "Are you sure?",
+      text: "Your will not be able to recover this imaginary file!",
+      type: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#DD6B55", confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "No, cancel plx!",
+      closeOnConfirm: false,
+      closeOnCancel: false,
+      showLoaderOnConfirm: true           // Add this line
+    }, function (isConfirm) {
+      if (!isConfirm) {
+        swal("Cancelled", "Your imaginary file is safe :)", "error");
+      } else {
+        // $timeout is sample code. Put your http call function into here.
+        $timeout(function () {
+          swal("Deleted!", "Your imaginary file has been deleted.", "success");
+        }, 2000);
+
+        /*$http({
+          method: 'POST',
+          url: 'Product.aspx/delete',
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'dataType': 'json'
+          },
+          data: { qid: qid }
+        }).then(function (data) {
+          swal("Deleted!", "Your imaginary file has been deleted.", "success");
+        });*/
+      }
+    });
+  };
+
+  // get all brand by onclick
+  $scope.brand = function () {
+    $http.get(baseURL + 'allBrands').then(successCallback, errorCallback);
+    function successCallback(res) {
+      $scope.brands = res.data;
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  // selected brand
+  var product_brand;
+  $scope.productBrand = function (val) {
+    product_brand = val;
+  };
+  // type by selected brand
+  $scope.type = function () {
+    $http.get(baseURL + 'type/' + product_brand).then(successCallback, errorCallback);
+    function successCallback(res) {
+      $scope.types = res.data;
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  // product title by selected brand
+  $scope.description = function () {
+    $http.get(baseURL + 'allTitles/' + product_brand).then(successCallback, errorCallback);
+    function successCallback(res) {
+      $scope.titles = res.data;
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  // selected product details
+  $scope.selectedItemChanged = function (title) {
+    $http.get(baseURL + 'productByPtitle/' + title).then(successCallback, errorCallback);
+    function successCallback(res) {
+      $scope.price = res.data.selling_price;
+      $scope.pcolor = res.data.pcolor;
+      $scope.ean = res.data.ean_number;
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  // add support desk
+  $scope.clientSupport = function (support) {
+    var id = window.localStorage.getItem('trid');
+    var name = window.localStorage.getItem('Client');
+    var date = new Date();
+    support.date = date;
+    support.id = id;
+    support.name = name;
+    $http.post(baseURL + 'supportMsgByClient', support).then(successCallback, errorCallback);
+    function successCallback(res) {
+      if (res.data.status == true) {
+        $scope.SendMsg = res.data.message;
+        $scope.showSendMsg = true,
+          $timeout(function () {
+            $scope.showSendMsg = false;
+            window.localStorage.removeItem('Client');
+            location.reload();
+          }, 3000);
+      } else {
+        $scope.errormsg = res.data.message;
+        $scope.showErrMsg = true,
+          $timeout(function () {
+            $scope.showErrMsg = false;
+          }, 3000);
+      }
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  // support msg of the client
+  $scope.getAllMessage = function () {
+    var id = window.localStorage.getItem('trid');
+    $http.get(baseURL + 'supportByClient/' + id).then(successCallback, errorCallback);
+    function successCallback(res) {
+      $scope.messages = res.data;
+      $timeout(function () {
+      }, 3000);
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  // personal info update
+  $scope.prsonalInfo = function (personal) {
+    $http.post(baseURL + 'updateClientPersonalInfo', personal).then(successCallback, errorCallback);
+    function successCallback(res) {
+      if (res.data) {
+        $timeout(function () {
+          location.reload();
+        }, 3000);
+      } else {
+        console.log('Error! Please check client id');
+      }
+    } function errorCallback(error) {
+      console.log(error);
+    };
+  }
+  // update password
+  $scope.updateClientPwd = function (personal) {
+    $http.post(baseURL + 'updateClientPwd', personal).then(successCallback, errorCallback);
+    function successCallback(res) {
+      if (res.data) {
+        $timeout(function () {
+          location.reload();
+        }, 3000);
+      } else {
+        console.log('Error! Please check client id');
+      }
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  // update address
+  $scope.updateClientAddr = function (personal) {
+    $http.post(baseURL + 'updateAddrByUserProfile', personal).then(successCallback, errorCallback);
+    function successCallback(res) {
+      if (res.data) {
+        $timeout(function () {
+          location.reload();
+        }, 3000);
+      } else {
+        console.log('Error! Please check client id');
+      }
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  // update address
+  $scope.updateBusiness = function (personal) {
+    var companyLogo = $scope.item.item_imagename;
+    var base64data = $scope.item.item_image;
+    personal.companyLogo = companyLogo;
+    personal.base64data = base64data;
+    $http.post(baseURL + 'updateClientBusiness', personal).then(successCallback, errorCallback);
+    function successCallback(res) {
+      if (res.data) {
+        $timeout(function () {
+          location.reload();
+        }, 3000);
+      } else {
+        console.log('Error! Please check client id');
+      }
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  $scope.item = {
+    item_imagename: '',
+    item_image: ''
+  };
+  $scope.updateattachment = function () {
+    console.log('yes');
+    var img = new Image();
+    var newfile = document.getElementById("file_browse").files[0];
+    var fileDisplayArea = document.getElementById('fileDisplayArea');
+    var imageType = /image.*/;
+    if (newfile.type.match(imageType)) {
+      var oFReader = new FileReader();
+      oFReader.onload = function (oFREvent) {
+        $scope.attachname = document.getElementById("file_browse").files[0].name;
+        $scope.attachmentfile = oFReader.result;
+        $scope.item.item_imagename = $scope.attachname;
+        $scope.item.item_image = $scope.attachmentfile;
+        $scope.$apply();
+        img.src = $scope.attachmentfile;
+      };
+      oFReader.readAsDataURL(newfile);
+      console.log($scope.item);
+    } else {
+      $scope.item.item_imagename = '';
+      $scope.item.item_image = '';
+    }
+  };
+
+
+});

@@ -1,0 +1,764 @@
+SampleApplicationModule.controller('operationController', function ($rootScope, $mdDialog, $scope, $filter, $location, $window, $http, $routeParams, $timeout, store) {
+  // redirect to page
+  $scope.goto = function (page) {
+    $location.path(page);
+  };
+  // Logout
+  $scope.logout = function () {
+    $window.localStorage.clear();
+    $window.location = '/';
+
+  };
+  $scope.allBrands = function () {
+    $http.get(baseURL + 'allBrands').then(successCallback, errorCallback);
+    function successCallback(res) {
+      $scope.allBrands = res.data;
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  $scope.allReferrers = () => {
+    let id = window.localStorage.getItem('trid');
+
+    $http.get(baseURL + 'allTeams/' + id).then(successCallback, errorCallback);
+    function successCallback(res) {
+      $scope.allTeams = res.data;
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  $scope.refr = (client) => {
+    var refrrr = ('referrer/' + client.client_name);
+    $scope.referrerURL = refr + refrrr;
+  };
+  // get User
+  $scope.getUser = function () {
+    let id = window.localStorage.getItem('trid');
+    $http.get(baseURL + 'clientById/' + id).then(successCallback, errorCallback);
+    function successCallback(res) {
+      $scope.client = res.data;
+      if (res.data.country == "bangladesh" || res.data.country == "Bangladesh" || res.data.country == "India" || res.data.country == "india") {
+        $scope.countryBd = true;
+        $scope.countryOther = false;
+      } else {
+        $scope.countryOther = true;
+        $scope.countryBd = false;
+      }
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  $scope.updateQty = function (qty) {
+    console.log(qty);
+  };
+  // get all products
+  $scope.getAllProduct = function () {
+    $http.get(baseURL + 'allProducts').then(successCallback, errorCallback);
+    function successCallback(res) {
+      $scope.products = res.data;
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  $scope.getAllResellerProducts = function () {
+    var id = window.localStorage.getItem('trid');
+    $http.get(baseURL + 'allResellersInventoryById/' + id).then(successCallback, errorCallback);
+    function successCallback(res) {
+      $scope.products = res.data;
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  $scope.ourOrders = function () {
+    var id = window.localStorage.getItem('trid');
+    $http.get(baseURL + 'clientOrderById/' + id).then(successCallback, errorCallback);
+    function successCallback(res) {
+      $scope.orders = res.data;
+      window.localStorage.setItem('Client', res.data[0].clients);
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  $scope.resellerPackingOrders = function () {
+    var id = window.localStorage.getItem('trid');
+    $http.get(baseURL + 'resellerPackingOrdersBYId/' + id).then(successCallback, errorCallback);
+    function successCallback(res) {
+      $scope.packingOrders = res.data;
+      var totalCost = 0;
+      var totalSelling = 0;
+      for (var i = 0; i < res.data.length; i++) {
+        totalCost = totalCost + parseFloat(res.data[i].costTotal);
+        totalSelling = totalSelling + parseFloat(res.data[i].totalAmount);
+      }
+      $scope.totalProfit = totalSelling - totalCost;
+      window.localStorage.setItem('Client', res.data[0].clients);
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  $scope.redirctToOrderSummary = function (resellerId, shipNo) {
+    window.localStorage.setItem('orderId', shipNo);
+    $location.path('/packingorderplaced');
+  };
+  // view invoice
+  $scope.redirecttoInvoice = function (inv_no, client_id) {
+    $location.path('/Invoice');
+    window.localStorage.setItem('InvNo', inv_no);
+    window.localStorage.setItem('Invcid', client_id);
+  };
+  $scope.redirectToBuyPack = function (inv_no, client_id) {
+    $location.path('/orderdetails');
+    window.localStorage.setItem('InvNo', inv_no);
+    window.localStorage.setItem('Invcid', client_id);
+  };
+  $scope.redirecttoPackingInvoice = function (shipNo, resellerId) {
+    $location.path('/shipinvoice');
+    window.localStorage.setItem('shipNo', shipNo);
+    window.localStorage.setItem('resellerId', resellerId);
+  };
+  $scope.redirecttoCostInvoiceUpdated = function (shipNo, resellerId) {
+    $location.path('/costinvoiceupdated');
+    window.localStorage.setItem('shipNo', shipNo);
+    window.localStorage.setItem('resellerId', resellerId);
+  };
+  $scope.redirecttoCostInvoice = function (shipNo, resellerId) {
+    $location.path('/costinvoice');
+    window.localStorage.setItem('shipNo', shipNo);
+    window.localStorage.setItem('resellerId', resellerId);
+  };
+  $scope.redirecttoPackingList = function (shipNo, resellerId) {
+    $location.path('/packingdetails');
+    window.localStorage.setItem('shipNo', shipNo);
+    window.localStorage.setItem('resellerId', resellerId);
+  };
+  $scope.productsByBrand = function (brand) {
+    $http.get(baseURL + 'allProductsByBrand/' + brand.brand).then(successCallback, errorCallback);
+    function successCallback(res) {
+      console.log(res);
+      $scope.products = res.data;
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  $scope.getInvoice = function () {
+    var inv_no = window.localStorage.getItem('InvNo');
+    var client_id = window.localStorage.getItem('Invcid');
+    $http.get(baseURL + 'viewInvDetails/' + inv_no + '/' + client_id).then(successCallback, errorCallback);
+    function successCallback(res) {
+      $scope.viewInv = res.data;
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  $scope.buy = function () {
+    $location.path('/Operation');
+  };
+  $scope.sell = function () {
+    $location.path('/Drop-Shipping');
+  };
+  $scope.redirectToNotes = function (id) {
+    window.localStorage.setItem('shipNo', id);
+    $location.path('/notes');
+  };
+  $scope.notesByIdForPacking = function () {
+
+    var id = localStorage.getItem('shipNo');
+    $http.get(baseURL + 'notesByProduct/' + id).then(successCallback, errorCallback);
+    function successCallback(res) {
+      $scope.noteLists = res.data;
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  $scope.notesByIdForBuying = function () {
+    var id = localStorage.getItem('InvNo');
+    $http.get(baseURL + 'notesByProduct/' + id).then(successCallback, errorCallback);
+    function successCallback(res) {
+      $scope.noteLists = res.data;
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  $scope.getPackingInvoice = function () {
+    var shipNo = window.localStorage.getItem('shipNo');
+    var resellerId = window.localStorage.getItem('resellerId');
+    $http.get(baseURL + 'viewPackingInvDetails/' + shipNo + '/' + resellerId).then(successCallback, errorCallback);
+    function successCallback(res) {
+      $scope.viewPackingInv = res.data;
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  $scope.InvGrandPrice = function () {
+    var shipNo = window.localStorage.getItem('shipNo');
+    $http.get(baseURL + 'viewInvGrandPrice/' + shipNo).then(successCallback, errorCallback);
+    function successCallback(res) {
+      $scope.costGrand = res.data.costTotal;
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  $scope.notesFromReseller = function (message) {
+    var d = new Date();
+    var curr_date = d.getDate();
+    var curr_month = d.getMonth() + 1;
+    var curr_year = d.getFullYear();
+    var hours = d.getHours();
+    var min = d.getMinutes();
+    var c_date = curr_date + "-" + curr_month + "-" + curr_year + "/" + hours + ":" + min;
+    var body = {
+      date: c_date,
+      message: message
+    };
+    var id = window.localStorage.getItem('shipNo');
+    $http.post(baseURL + 'notesFromReseller/' + id, body).then(successCallback, errorCallback);
+    function successCallback(res) {
+      if (res.data.status === true) {
+        $scope.statusmsz = res.data.message;
+        $scope.respo = true;
+        $timeout(() => {
+          location.reload();
+        }, 2000);
+      }
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  $scope.invoicePdf = function () {
+    html2canvas(document.getElementById('exportthis'), {
+      letterRendering: 1, allowTaint: false, useCORS: true, onrendered: function (canvas) {
+        var data = canvas.toDataURL('image/png');
+        var docDefinition = {
+          content: [{
+            image: data,
+            width: 500,
+          }]
+        };
+        pdfMake.createPdf(docDefinition).download("Invoice.pdf");
+      }
+    });
+  };
+  $rootScope.$on('$locationChangeStart', function (event, current, previous) {
+    $scope.previousURL = previous;
+  });
+
+  // update client address
+  $scope.updateClientAddr = function (addr) {
+    var addr1 = JSON.stringify(addr);
+    localStorage.setItem('shipPack', addr1);
+    $timeout(function () {
+      $location.path('/Drop-Shipping');
+    }, 1000);
+  };
+  $scope.updateClientAddr1 = function (addr) {
+    var addr1 = JSON.stringify(addr);
+    localStorage.setItem('shipPack', addr1);
+    $timeout(function () {
+      $location.path('/previewpacking');
+    }, 1000);
+  };
+  $scope.updateClientAddrBuy = function (addr) {
+    var addr2 = JSON.stringify(addr);
+    localStorage.setItem('shipBuy', addr2);
+    $timeout(function () {
+      $location.path('/Preview-Order');
+    }, 1000);
+  };
+  $scope.getShipping = function () {
+    var id = window.localStorage.getItem('trid');
+    $http.get(baseURL + 'ShippingTracking/' + id).then(successCallback, errorCallback);
+    function successCallback(res) {
+      $scope.Shippinglist = res.data;
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+
+  $scope.packinglist = function (id, inv_no) {
+    window.localStorage.setItem('Invcid', id);
+    window.localStorage.setItem('InvNo', inv_no);
+    $location.path("/Packing-List");
+  };
+  $scope.viewPacking = function () {
+    var inv_no = window.localStorage.getItem('InvNo');
+    var client_id = window.localStorage.getItem('Invcid');
+    $http.get(baseURL + 'viewInvDetails/' + inv_no + '/' + client_id).then(successCallback, errorCallback);
+    function successCallback(res) {
+      $scope.viewInv = res.data;
+      $timeout(function () {
+        window.localStorage.removeItem('InvNo');
+        window.localStorage.removeItem('Invcid');
+      }, 3000);
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  // add cart
+  $scope.addcart = [];
+  $scope.addCartProduct = function (id, title, brand, category, color, ean, price, qty) {
+    var body = {
+      id: id,
+      title: title,
+      color: color,
+      ean: ean,
+      brand: brand,
+      category: category,
+      price: price,
+    };
+    body.qty = qty;
+    body.total = body.qty * price;
+    $scope.addcart.push(angular.copy(body));
+    window.localStorage.setItem('AddCart', JSON.stringify($scope.addcart));
+  };
+
+  $scope.addpacking = [];
+  $scope.addProductpacking = function (id, title, brand, category, price, qty, sellingPrice, costBd, costBdPlus5, countryBd) {
+    var body = {
+      id: id,
+      title: title,
+      brand: brand,
+      category: category,
+    };
+    body.qty = qty;
+    if (countryBd == true) {
+      body.total = qty * costBdPlus5;
+      body.grand = (qty * 5) + (body.total);
+      body.costTotal = (qty * costBd) + (qty * 5);
+      body.price = costBd;
+      body.sellingPrice = costBdPlus5;
+    } else {
+      body.total = qty * sellingPrice;
+      body.grand = (qty * 5) + (body.total);
+      body.costTotal = (qty * price) + (qty * 5);
+      body.price = price;
+      body.sellingPrice = sellingPrice;
+    }
+    $scope.addcart.push(angular.copy(body));
+    window.localStorage.setItem('AddPackingList', JSON.stringify($scope.addcart));
+    var data = localStorage.getItem('AddPackingList');
+    $scope.Cartdata = JSON.parse(data);
+    $scope.no_of_item = $scope.Cartdata.length;
+    var costTotal = 0;
+    var sellingTotal = 0;
+    for (var i = 0; i < $scope.Cartdata.length; i++) {
+      costTotal = costTotal + $scope.Cartdata[i].costTotal;
+      sellingTotal = sellingTotal + $scope.Cartdata[i].grand;
+    }
+    var cT = costTotal;
+    var sT = sellingTotal;
+    $scope.profit = sT - cT;
+  };
+  $scope.directBuyItems = function (id, title, brand, category, price, qty) {
+    var body = {
+      id: id,
+      title: title,
+      brand: brand,
+      category: category,
+    };
+    body.qty = qty;
+    body.total = qty * price;
+    body.grand = (qty * 5) + (body.total);
+    body.price = price;
+    $scope.addcart.push(angular.copy(body));
+    window.localStorage.setItem('directBuyItems', JSON.stringify($scope.addcart));
+    var data = localStorage.getItem('directBuyItems');
+    $scope.Cartdata = JSON.parse(data);
+    $scope.no_of_item = $scope.Cartdata.length;
+    var costTotal = 0;
+    var sellingTotal = 0;
+    for (var i = 0; i < $scope.Cartdata.length; i++) {
+      sellingTotal = sellingTotal + $scope.Cartdata[i].grand;
+    }
+    $scope.orderTotal = sellingTotal;
+  };
+  // get add cart data
+  $scope.AllCartData = function () {
+    var data = localStorage.getItem('AddCart');
+    $scope.Cartdata = JSON.parse(data);
+    $scope.no_of_item = $scope.Cartdata.length;
+  };
+  $scope.AllPackingData = function () {
+    var data = localStorage.getItem('AddPackingList');
+    $scope.Cartdata = JSON.parse(data);
+
+    if ($scope.Cartdata == null) {
+      $scope.profit = 0;
+    } else {
+      $scope.no_of_item = $scope.Cartdata.length;
+      $scope.costTotal = $scope.Cartdata.reduce((sum, item) => {
+        return item.costTotal + sum;
+      }, 0);
+      $scope.sellingTotal = $scope.Cartdata.reduce((sum, item) => {
+        return item.grand + sum;
+      }, 0);
+      $scope.profit = $scope.sellingTotal - $scope.costTotal;
+    }
+  };
+  $scope.directBuyItemsList = function () {
+    var data = localStorage.getItem('directBuyItems');
+    $scope.Cartdata = JSON.parse(data);
+    $scope.sellingTotal = $scope.Cartdata.reduce((sum, item) => {
+      return item.grand + sum;
+    }, 0);
+  };
+  $scope.updatedPackingCart = function (id) {
+    var data = localStorage.getItem('AddPackingList');
+    $scope.Cartdata = JSON.parse(data);
+    if (id > -1) {
+      $scope.Cartdata.splice(id, 1);
+    }
+    window.localStorage.setItem('AddPackingList', JSON.stringify($scope.Cartdata));
+
+  };
+
+  $scope.removePacking = function (item) {
+    var index = $scope.Cartdata.indexOf(item);
+    $scope.Cartdata.splice(index, 1);
+    $window.localStorage.setItem('AddPackingList', JSON.stringify($scope.Cartdata));
+  };
+
+  // grand total of cart product
+  $scope.getGrandOfCart = function () {
+    var grand = 0;
+    var totalGrand = 0;
+    for (var i = 0; i < $scope.Cartdata.length; i++) {
+      grand += parseFloat($scope.Cartdata[i].total);
+      totalGrand += parseFloat($scope.Cartdata[i].grand);
+    }
+    return grand;
+  };
+  $scope.getTotalGrandOfCart = function () {
+    var totalGrand = 0;
+    for (var i = 0; i < $scope.Cartdata.length; i++) {
+      totalGrand += parseFloat($scope.Cartdata[i].grand);
+    }
+    return totalGrand;
+  };
+  $scope.totalDirectBuy = function () {
+    var totalGrand = 0;
+    for (var i = 0; i < $scope.Cartdata.length; i++) {
+      totalGrand += parseFloat($scope.Cartdata[i].grand);
+    }
+    return totalGrand;
+  };
+
+  $scope.resellerOrderDetails = function () {
+    var orderId = window.localStorage.getItem('orderId');
+    $http.get(baseURL + 'resellerOrderDetailsById/' + orderId).then((res) => {
+      $scope.orderData = res.data;
+      $scope.orderId = res.data[0].orderId;
+      $scope.costTotal = res.data.reduce((total, item) => {
+        return parseFloat(item.costTotal) + total + (item.qty * 5);
+      }, 0);
+      $scope.shipTotal = res.data.reduce((total, item) => {
+        return parseFloat(item.total) + total + (item.qty * 5);
+      }, 0);
+      $scope.profit = $scope.shipTotal - $scope.costTotal;
+    }).catch((error) => {
+      console.log(error);
+    });
+  };
+
+  $scope.directBuyOrderDetails = function () {
+    var orderId = window.localStorage.getItem('shipNo');
+    $http.get(baseURL + 'directBuyOrderDetails/' + orderId).then((res) => {
+      $scope.orderData = res.data;
+
+      $scope.orderId = res.data[0].orderId;
+      $scope.orderTotal = res.data.reduce((total, item) => {
+        return parseFloat(item.grand) + total;
+      }, 0);
+    }).catch((error) => {
+      console.log(error);
+    });
+  };
+  function date() {
+    const d = new Date();
+    const curr_month = d.getMonth() + 1;
+    const c_date = d.getDate() + "-" + curr_month + "-" + d.getFullYear();
+    const shipNo = d.getDate() + "" + d.getHours() + "" + d.getMinutes() + "" + d.getSeconds() + "" + d.getMilliseconds();
+    return {
+      'date': c_date,
+      'shipNo': shipNo
+    };
+  }
+  $scope.directBuyOrderConfirm = (order, amount, client) => {
+    const dateObj = date();
+    let body = {
+      date: dateObj.date,
+      shipNo: dateObj.shipNo,
+      order: order,
+      amount: amount,
+      client: client
+    };
+    $http.post(baseURL + 'directBuyOrderConfirm', body).then((res) => {
+      $scope.redirectToDirectBuySummary(dateObj.shipNo);
+    });
+  };
+  $scope.redirectToDirectBuySummary = (shipNo) => {
+    $location.path('/directbuysummary');
+    window.localStorage.setItem('shipNo', shipNo);
+  };
+  $scope.packConfirm = function (shipAddress, order, amount, client) {
+    var id = client.id;
+    var data = localStorage.getItem('AddPackingList');
+    $scope.Cartdata = JSON.parse(data);
+    var cT = $scope.Cartdata.reduce((sum, item) => {
+      return item.costTotal + sum;
+    }, 0);
+    var d = new Date();
+    var curr_month = d.getMonth() + 1;
+    var c_date = d.getDate() + "-" + curr_month + "-" + d.getFullYear();
+    var out_shipno = d.getDate() + "" + d.getHours() + "" + d.getMinutes() + "" + d.getSeconds() + "" + d.getMilliseconds();
+    var body = {
+      id: id,
+      c_date: c_date,
+      out_shipno: out_shipno,
+      shipAddress: shipAddress,
+      order: order,
+      amount: amount,
+      costTotal: cT,
+      points: client.points
+    };
+    $http.post(baseURL + 'resellerPackOrder', body).then((res) => {
+      var orderId = res.data.orderId;
+      window.localStorage.setItem('orderId', orderId);
+      $timeout(function () {
+        $scope.showaddpromsg = false;
+        $scope.redirecttoCostInvoice(out_shipno, id);
+        window.localStorage.removeItem('AddPackingList');
+      }, 2000);
+
+    }).catch((error) => {
+      console.log(error);
+    });
+  };
+  $scope.paymentConfirm = (client, shipTotal, costTotal, orderId) => {
+    var d = new Date();
+    var curr_date = d.getDate();
+    var curr_month = d.getMonth() + 1;
+    var curr_year = d.getFullYear();
+    var obj = {
+      'client': client,
+      'shipTotal': shipTotal,
+      'costTotal': costTotal,
+      'orderId': orderId,
+      'date': curr_date + '-' + curr_month + '-' + curr_year
+    };
+    $http.post(baseURL + 'resellerPaymentConfirmation', obj).then((res) => {
+      if (res.status === 200) {
+        $location.path("/dropshippingorders");
+      }
+    }).catch((error) => {
+      console.log(error);
+    });
+  };
+  $scope.resellerPaymentHistory = function () {
+    var id = window.localStorage.getItem('trid');
+    $http.get(baseURL + 'resellerPaymentHistory/' + id).then((res) => {
+      $scope.history = res.data;
+    }).catch((error) => {
+      console.log(error);
+    });
+  };
+  $scope.queryFromReseller = (query, client) => {
+    var d = new Date();
+    var curr_date = d.getDate();
+    var curr_month = d.getMonth() + 1;
+    var curr_year = d.getFullYear();
+    var obj = {
+      'client': client,
+      'date': curr_date + '-' + curr_month + '-' + curr_year + '/' + d.getHours() + ':' + d.getMinutes(),
+      's_msg': query,
+      'priority': 'Very High',
+      'department': 'Purchase',
+      's_status': 'Pending',
+      'req_user': client.client_name,
+      'assign_to': 'Amol'
+    };
+    $http.post(baseURL + 'addSupport', obj).then((res) => {
+      if (res.status == 200) {
+        $scope.queryRespo = true;
+        $scope.querymsz = "Query has been submitted to us. We will revert you back on this.";
+      } else {
+        $scope.queryRespo = true;
+        $scope.querymsz = "Query has not been submitted to us.Please try again.";
+      }
+      $timeout(() => {
+        location.reload();
+      }, 3000);
+    }).catch((err) => {
+      console.log(err);
+    });
+
+  };
+  $scope.selectedClients = function (id) {
+    $http.get(baseURL + 'resellerClientsDataById/' + id).then(successCallback, errorCallback);
+    function successCallback(res) {
+      $scope.user = res.data[0];
+      // location.reload();
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  $scope.resellerClients = function () {
+    var resellerId = window.localStorage.getItem('trid');
+    $http.get(baseURL + 'resellerClientsById/' + resellerId).then(successCallback, errorCallback);
+    function successCallback(res) {
+      if (res.data.length == 0) {
+        $scope.noClients = true;
+        $scope.allClients = 'No clients!';
+        $scope.clientsPresent = false;
+      } else {
+        $scope.noClients = false;
+        $scope.allClients = res.data;
+        $scope.clientsPresent = true;
+      }
+    } function errorCallback(error) {
+      console.log(error);
+    }
+  };
+  $scope.getPackAddr = function () {
+    var shipAdd = JSON.parse(localStorage.getItem('shipPack'));
+    $scope.shipAddress = shipAdd;
+  };
+
+  $scope.item = {
+    'item_imagename': '',
+    'item_image': ''
+  };
+  $scope.exportToCSV = function () {
+    $http.get(baseURL + "allProducts").then(function (res) {
+      var data = res.data;
+      var itemsFormatted = [];
+      // format the data
+      data.forEach((item) => {
+        itemsFormatted.push({
+          description: item.description.replace(/,/g, ''), // remove commas to avoid errors,
+          ourPrice: item.selling_price,
+          marketPrice: item.sellingPricePlus5,
+          brand: item.brand,
+          type: item.type
+        });
+      });
+      var headers = {
+        description: 'Title'.replace(/,/g, ''), // remove commas to avoid errors
+        OurPrice: "Our USD Price",
+        brand: "Brand",
+        type: "Category",
+        marketPrice: "Market Price"
+      };
+      function convertToCSV(itemsFormatted) {
+        var array = typeof itemsFormatted != 'object' ? JSON.parse(itemsFormatted) : itemsFormatted;
+        var str = '';
+        for (var i = 0; i < array.length; i++) {
+          var line = '';
+          for (var index in array[i]) {
+            if (line != '') line += '     ';
+            line += array[i][index];
+          }
+          str += line + '\r\n';
+        }
+        $scope.data = str = str;
+        // $('#myModal20').modal('show');
+        return str;
+      }
+      var fileTitle = 'Items';
+      function exportCSVFile(headers, items, fileTitle) {
+        if (headers) {
+          items.unshift(headers);
+        }
+        // Convert Object to JSON
+        var jsonObject = JSON.stringify(items);
+        var csv = convertToCSV(jsonObject);
+        var exportedFilenmae = fileTitle + '.csv' || 'export.csv';
+        var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        if (navigator.msSaveBlob) { // IE 10+
+          navigator.msSaveBlob(blob, exportedFilenmae);
+        } else {
+          var link = document.createElement("a");
+          if (link.download !== undefined) { // feature detection
+            // Browsers that support HTML5 download attribute
+            // var url = URL.createObjectURL(blob);
+            // link.setAttribute("href", url);
+            // link.setAttribute("download", exportedFilenmae);
+            // link.style.visibility = 'hidden';
+            // document.body.appendChild(link);
+            // link.click();
+            // document.body.removeChild(link);
+          }
+        }
+      }
+      exportCSVFile(headers, itemsFormatted, fileTitle);
+    }, function (error) {
+      console.log("Error! Please check API code for order Inventory");
+    });
+
+  };
+  $scope.item = {
+    'item_imagename': '',
+    'item_image': ''
+  };
+  $scope.updateattachment = function () {
+    var img = new Image();
+    var newfile = document.getElementById("transactionProof").files[0];
+    var fileDisplayArea = document.getElementById('fileDisplayArea');
+    var imageType = /image.*/;
+    if (newfile.type.match(imageType)) {
+      var oFReader = new FileReader();
+      oFReader.onload = function (oFREvent) {
+        $scope.attachname = document.getElementById("transactionProof").files[0].name;
+        $scope.attachmentfile = oFReader.result;
+        $scope.item.item_imagename = $scope.attachname;
+        $scope.item.item_image = $scope.attachmentfile;
+        $scope.$apply();
+        img.src = $scope.attachmentfile;
+      };
+      oFReader.readAsDataURL(newfile);
+    } else {
+      $scope.item.item_imagename = '';
+      $scope.item.item_image = '';
+    }
+  };
+  $scope.creditsProof = (payment, client) => {
+    var d = new Date();
+    var month = d.getMonth() + 1;
+    payment = {
+      date: d.getDate() + '-' + month + '-' + d.getFullYear(),
+      imageName: $scope.item.item_imagename,
+      imageB64Data: $scope.item.item_image,
+      client: client,
+      transactionId: payment.transactionId,
+      amount: payment.amount
+    };
+    $http.post(baseURL + 'creditsProofById', payment).then((res) => {
+      if (res.data.status == true) {
+        $scope.creditsProofSucc = true;
+        $scope.creditsProofRespo = "Your request to add credits has been submitted successfully. Points will be credited once verification is done!";
+        $timeout(() => {
+          $location.path('/paymenthistory');
+        }, 3000);
+      }
+
+    }).catch((error) => {
+      $scope.creditsProofErr = true;
+      $scope.creditsProofRespo = "Your request to add credits has not been submitted. Please refresh the page and try again!";
+    });
+  };
+
+}).directive('validFile', function () {
+  return {
+    require: 'ngModel',
+    link: function (scope, el, attrs, ctrl) {
+      ctrl.$setValidity('validFile', el.val() != '');
+      //change event is fired when file is selected
+      el.bind('change', function () {
+        ctrl.$setValidity('validFile', el.val() != '');
+        scope.$apply(function () {
+          ctrl.$setViewValue(el.val());
+          ctrl.$render();
+        });
+      });
+    }
+  };
+});
